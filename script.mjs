@@ -2,10 +2,6 @@ var messageSpace = document.getElementById("welcomeMessage");
 var inputMessage = document.getElementById("inputMessage");
 messageSpace.innerHTML = "You've connected to the JavaScript!";
 
-function changeHeading(){
-    messageSpace.innerHTML = inputMessage.value;
-}
-
 
 
 
@@ -23,11 +19,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase
 import { getDatabase, ref, set, get, update, query, orderByChild, limitToFirst, limitToLast, onValue } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-database.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
 
-/**************************************************************/
-export { fb_initialise, fb_authenticate, fb_detectAuthStateChanged, submitform, fb_sortByGameHighScore, fb_write, fb_read };
-fb_initialise();
-fb_detectAuthStateChanged();
-fb_sortByGameHighScore("mazeGameHighScore", document.getElementById("defaultSort"));
 
 // Functions to initialise and authenticate
 function fb_initialise() {
@@ -65,7 +56,7 @@ function fb_authenticate() {
         console.log("User Local ID: " + googleAuth.user.uid); //DIAG
 
         // Show the form to sign in and attempt to read the user's information from firebase and auto fill the form
-        document.getElementById("logInButton").style.display = "none";
+        /*document.getElementById("logInButton").style.display = "none";
         document.getElementById("signUpForm").style.display = "block";
         
         fb_read(("userPublicInformation/" + googleAuth.user.uid + "/userName")).then((fb_userName) => {
@@ -75,7 +66,7 @@ function fb_authenticate() {
         fb_read(("userPrivateInformation/" + googleAuth.user.uid + "/userAge")).then((fb_userAge) => {
             console.log(fb_userAge);
             document.getElementById("userAge").value = fb_userAge;
-        });
+        });*/
     })
     .catch((error) => {
         console.log("Authentication unsuccessful"); //DIAG
@@ -100,15 +91,22 @@ function fb_detectAuthStateChanged() {
 
 // Functions to write user data
 function fb_write(FILEPATH, DATA) {
-        const REF = ref(fb_gameDB, FILEPATH);
-        return set(REF, DATA).then(() => {
-            //console.log("Written the following information to the database:");
-            //console.log(DATA);
-        }).catch((error) => {
-            console.log("Error with writing to the database");
-            console.log(error);
-        });
-    }
+    console.log('%c fb_write: ', 'color: ' + COL_C + '; background-color: ' + COL_B + ';'); //DIAG
+
+    const REF = ref(fb_gameDB, FILEPATH);
+    return set(REF, DATA).then(() => {
+        console.log("Written the following information to the database:");
+        console.log(DATA);
+    }).catch((error) => {
+        console.log("Error with writing to the database");
+        console.log(error);
+    });
+}
+function test_writing() {
+    var data = inputMessage.value;
+    fb_write("Testy information", data);
+    messageSpace.innerHTML = "Written this to the database: " + inputMessage.value;
+}
 function fb_writeUserInformation() {
     console.log('%c fb_writeTo: ', 'color: ' + COL_C + '; background-color: ' + COL_B + ';'); //DIAG
 
@@ -174,6 +172,11 @@ function fb_read(FILEPATH) {
         return null
     });
 }
+function test_read(){
+    fb_read("Testy information").then((data) => {
+        messageSpace.innerHTML = "Read this from the database: " + data;
+    });
+}
 function fb_sortByGameHighScore(gameHighScore, element) {
     console.log('%c fb_sortByGameHighScore: ', 'color: ' + COL_C + '; background-color: ' + COL_B + ';'); //DIAG
 
@@ -207,3 +210,15 @@ function fb_sortByGameHighScore(gameHighScore, element) {
         console.log(error);
     });
 }
+
+fb_initialise();
+fb_detectAuthStateChanged();
+test_read();
+window.fb_initialise = fb_initialise;
+window.fb_authenticate = fb_authenticate;
+window.fb_detectAuthStateChanged = fb_detectAuthStateChanged;
+window.submitform = submitform;
+window.fb_sortByGameHighScore = fb_sortByGameHighScore;
+window.fb_write = fb_write;
+window.fb_read = fb_read;
+window.test_writing = test_writing;
