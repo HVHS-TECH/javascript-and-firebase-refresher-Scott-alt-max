@@ -11,6 +11,7 @@ console.log('%c fb_io.mjs', 'color: blue; background-color: white;'); //DIAG
 var fb_gameDB;
 var googleAuth;
 var fb_favoriteFruits = [];
+var uid;
 
 
 
@@ -31,7 +32,8 @@ function fb_initialise() {
         storageBucket: "scotty13compsci.firebasestorage.app",
         messagingSenderId: "369606866071",
         appId: "1:369606866071:web:313c69059ecae87eee65d2",
-        measurementId: "G-X75EMXKZ1J"
+        measurementId: "G-X75EMXKZ1J",
+        databaseURL: "https://scotty13compsci-default-rtdb.asia-southeast1.firebasedatabase.app"
     };
     
     const FB_GAMEAPP = initializeApp(FB_GAMECONFIG);
@@ -55,6 +57,7 @@ function fb_authenticate() {
         console.log("User Email: " + googleAuth._tokenResponse.email); //DIAG
         console.log("User Local ID: " + googleAuth.user.uid); //DIAG
 
+        uid = googleAuth.user.uid;
         // Show the form to sign in and attempt to read the user's information from firebase and auto fill the form
         /*document.getElementById("logInButton").style.display = "none";
         document.getElementById("signUpForm").style.display = "block";
@@ -94,6 +97,10 @@ function fb_write(FILEPATH, DATA) {
     console.log('%c fb_write: ', 'color: ' + COL_C + '; background-color: ' + COL_B + ';'); //DIAG
 
     const REF = ref(fb_gameDB, FILEPATH);
+    console.log("ref is working");
+    console.log(REF); //DIAG
+    console.log(DATA); //DIAG
+    console.log(FILEPATH); //DIAG
     return set(REF, DATA).then(() => {
         console.log("Written the following information to the database:");
         console.log(DATA);
@@ -103,9 +110,11 @@ function fb_write(FILEPATH, DATA) {
     });
 }
 function test_writing() {
-    var data = inputMessage.value;
-    fb_write("Testy information", data);
-    messageSpace.innerHTML = "Written this to the database: " + inputMessage.value;
+    //var data = inputMessage.value;
+    const DATA = "hello";
+    const FILEPATH = uid + "/testyInformation";
+    fb_write(FILEPATH, DATA);
+    messageSpace.innerHTML = "Written this to the database: " + DATA;
 }
 function fb_writeUserInformation() {
     console.log('%c fb_writeTo: ', 'color: ' + COL_C + '; background-color: ' + COL_B + ';'); //DIAG
@@ -155,11 +164,13 @@ function fb_read(FILEPATH) {
     const REF = ref(fb_gameDB, FILEPATH);
 
     return get(REF).then((snapshot) => {
+        console.log("get is working"); //DIAG
+
         var fb_data = snapshot.val();
 
         if (fb_data != null) {
-            //console.log("Successfully read database information:");
-            //console.log(fb_data);
+            console.log("Successfully read database information:");
+            console.log(fb_data);
             return fb_data;
         } else {
             console.log("Attempting to read a value that doesn't exist");
@@ -173,7 +184,7 @@ function fb_read(FILEPATH) {
     });
 }
 function test_read(){
-    fb_read("Testy information").then((data) => {
+    fb_read("/").then((data) => {
         messageSpace.innerHTML = "Read this from the database: " + data;
     });
 }
@@ -213,7 +224,6 @@ function fb_sortByGameHighScore(gameHighScore, element) {
 
 fb_initialise();
 fb_detectAuthStateChanged();
-test_read();
 window.fb_initialise = fb_initialise;
 window.fb_authenticate = fb_authenticate;
 window.fb_detectAuthStateChanged = fb_detectAuthStateChanged;
@@ -222,3 +232,4 @@ window.fb_sortByGameHighScore = fb_sortByGameHighScore;
 window.fb_write = fb_write;
 window.fb_read = fb_read;
 window.test_writing = test_writing;
+window.test_read = test_read;
